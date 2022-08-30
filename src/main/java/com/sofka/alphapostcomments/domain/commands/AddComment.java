@@ -1,38 +1,31 @@
 package com.sofka.alphapostcomments.domain.commands;
 
 import co.com.sofka.domain.generic.Command;
-import com.sofka.alphapostcomments.domain.values.Author;
-import com.sofka.alphapostcomments.domain.values.CommentId;
-import com.sofka.alphapostcomments.domain.values.Content;
-import com.sofka.alphapostcomments.domain.values.PostId;
 
 public class AddComment extends Command {
 
-    private final PostId postId;
-    private final CommentId id;
-    private final Author author;
-    private final Content content;
+    private String postId;
+    private String id;
+    private String author;
+    private String content;
 
-    public AddComment(PostId postId, CommentId id, Author author, Content content) {
-        this.postId = postId;
-        this.id = id;
-        this.author = author;
-        this.content = content;
+    public AddComment() {
+
     }
 
-    public PostId getPostId() {
+    public String getPostId() {
         return postId;
     }
 
-    public CommentId getId() {
+    public String getId() {
         return id;
     }
 
-    public Author getAuthor() {
+    public String getAuthor() {
         return author;
     }
 
-    public Content getContent() {
+    public String getContent() {
         return content;
     }
 }

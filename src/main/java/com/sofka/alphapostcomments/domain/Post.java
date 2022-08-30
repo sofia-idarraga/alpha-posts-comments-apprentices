@@ -23,15 +23,15 @@ public class Post extends AggregateEvent<PostId> {
     public Post(PostId entityId, Title title, Author author) {
         super(entityId);
         subscribe(new PostChange(this));
-        appendChange(new PostCreated(title,author)).apply();
+        appendChange(new PostCreated(title.value(), author.value())).apply();
     }
 
-    private Post(PostId id){
+    private Post(PostId id) {
         super(id);
         subscribe(new PostChange(this));
     }
 
-    public static Post from(PostId id, List<DomainEvent> events){
+    public static Post from(PostId id, List<DomainEvent> events) {
         Post post = new Post(id);
         events.forEach(domainEvent -> post.applyEvent(domainEvent));
         return post;
@@ -39,16 +39,16 @@ public class Post extends AggregateEvent<PostId> {
 
     //----------- BEHAVIORS
 
-    public void addComment(CommentId id, Author author, Content content){
+    public void addComment(CommentId id, Author author, Content content) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(author);
         Objects.requireNonNull(content);
-        appendChange(new CommentAdded(id,author,content)).apply();
+        appendChange(new CommentAdded(id.value(), author.value(), content.value())).apply();
     }
 
     //------------- FINDER
 
-    public Optional<Comment> getCommentById(CommentId commentId){
+    public Optional<Comment> getCommentById(CommentId commentId) {
         return comments.stream().filter((comment -> comment.identity().equals(commentId))).findFirst();
     }
 
