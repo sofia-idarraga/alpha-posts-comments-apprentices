@@ -2,6 +2,8 @@ package com.sofka.alphapostcomments.business.usecases;
 
 import co.com.sofka.domain.generic.DomainEvent;
 import com.sofka.alphapostcomments.business.gateways.DomainEventRepository;
+import com.sofka.alphapostcomments.business.gateways.EventBus;
+import com.sofka.alphapostcomments.business.generic.UseCaseForCommand;
 import com.sofka.alphapostcomments.domain.Post;
 import com.sofka.alphapostcomments.domain.commands.CreatePost;
 import com.sofka.alphapostcomments.domain.values.Author;
@@ -12,14 +14,19 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class CreatePostUseCase {
+public class CreatePostUseCase extends UseCaseForCommand<CreatePost> {
 
     // Instantiate the repository
     private final DomainEventRepository repository;
+    private final EventBus bus;
+
 
     //Just the constructor
-    public CreatePostUseCase(DomainEventRepository repository) {
+    public CreatePostUseCase(DomainEventRepository repository, EventBus bus) {
+
         this.repository = repository;
+        this.bus = bus;
+
     }
 
     public Flux<DomainEvent> apply(Mono<CreatePost> createPost) {
@@ -37,7 +44,8 @@ public class CreatePostUseCase {
                     // In this case the event is PostCreated
                     return post.getUncommittedChanges();
                 })
-                .flatMap(domainEvent -> repository.saveEvent(domainEvent).thenReturn(domainEvent));
+                .flatMap(domainEvent -> repository.saveEvent(domainEvent).thenReturn(domainEvent))
+                .doOnNext(bus::publish);
         //Finally we save the event in the repository and return it
     }
 }

@@ -5,6 +5,8 @@ import com.sofka.alphapostcomments.domain.values.Author;
 import com.sofka.alphapostcomments.domain.values.CommentId;
 import com.sofka.alphapostcomments.domain.values.Content;
 
+import java.util.Objects;
+
 public class Comment extends Entity<CommentId> {
 
     private Author author;
@@ -22,5 +24,9 @@ public class Comment extends Entity<CommentId> {
 
     public Content content() {
         return content;
+    }
+
+    public void editContent(Content content){
+        this.content = Objects.requireNonNull(content);
     }
 }

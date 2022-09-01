@@ -3,11 +3,14 @@ package com.sofka.alphapostcomments.domain;
 import co.com.sofka.domain.generic.AggregateEvent;
 import co.com.sofka.domain.generic.DomainEvent;
 import com.sofka.alphapostcomments.domain.events.CommentAdded;
+import com.sofka.alphapostcomments.domain.events.CommentContentEdited;
 import com.sofka.alphapostcomments.domain.events.PostCreated;
+import com.sofka.alphapostcomments.domain.events.TagAdded;
 import com.sofka.alphapostcomments.domain.values.Author;
 import com.sofka.alphapostcomments.domain.values.CommentId;
 import com.sofka.alphapostcomments.domain.values.Content;
 import com.sofka.alphapostcomments.domain.values.PostId;
+import com.sofka.alphapostcomments.domain.values.Tag;
 import com.sofka.alphapostcomments.domain.values.Title;
 
 import java.util.List;
@@ -18,6 +21,7 @@ public class Post extends AggregateEvent<PostId> {
 
     protected Title title;
     protected Author author;
+    protected List<Tag> tags;
     protected List<Comment> comments;
 
     public Post(PostId entityId, Title title, Author author) {
@@ -46,6 +50,17 @@ public class Post extends AggregateEvent<PostId> {
         appendChange(new CommentAdded(id.value(), author.value(), content.value())).apply();
     }
 
+    public void addTag(Tag tag){
+        Objects.requireNonNull(tag);
+        appendChange(new TagAdded(tag.value())).apply();
+    }
+
+    public void editCommentContent(CommentId commentId, Content content){
+        Objects.requireNonNull(commentId);
+        Objects.requireNonNull(content);
+        appendChange( new CommentContentEdited(commentId.value(), content.value())).apply();
+    }
+
     //------------- FINDER
 
     public Optional<Comment> getCommentById(CommentId commentId) {
@@ -54,6 +69,10 @@ public class Post extends AggregateEvent<PostId> {
 
     //----- ACCESS
 
+
+    public List<Tag> tags() {
+        return tags;
+    }
 
     public Title title() {
         return title;
