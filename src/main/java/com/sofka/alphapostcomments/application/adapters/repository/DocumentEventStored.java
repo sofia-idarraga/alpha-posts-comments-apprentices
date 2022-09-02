@@ -3,6 +3,8 @@ package com.sofka.alphapostcomments.application.adapters.repository;
 import com.sofka.alphapostcomments.application.generic.models.StoredEvent;
 
 public class DocumentEventStored {
+
+    private String id;
     private String aggregateRootId;
 
     private StoredEvent storedEvent;

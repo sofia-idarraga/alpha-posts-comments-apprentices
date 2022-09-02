@@ -12,6 +12,11 @@ public class AddTag extends Command {
 
     }
 
+    public AddTag(String postId, String tag) {
+        this.postId = postId;
+        this.tag = tag;
+    }
+
     public String getPostId() {
         return postId;
     }

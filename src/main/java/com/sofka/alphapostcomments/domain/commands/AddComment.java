@@ -13,6 +13,13 @@ public class AddComment extends Command {
 
     }
 
+    public AddComment(String postId, String id, String author, String content) {
+        this.postId = postId;
+        this.id = id;
+        this.author = author;
+        this.content = content;
+    }
+
     public String getPostId() {
         return postId;
     }

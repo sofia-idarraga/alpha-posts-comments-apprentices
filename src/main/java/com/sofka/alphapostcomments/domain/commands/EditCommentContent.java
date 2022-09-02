@@ -11,6 +11,12 @@ public class EditCommentContent extends Command {
     public EditCommentContent() {
     }
 
+    public EditCommentContent(String postId, String commentId, String content) {
+        this.postId = postId;
+        this.commentId = commentId;
+        this.content = content;
+    }
+
     public String getPostId() {
         return postId;
     }

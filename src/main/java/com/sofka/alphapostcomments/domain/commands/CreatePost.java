@@ -12,6 +12,12 @@ public class CreatePost extends Command {
 
     }
 
+    public CreatePost(String postId, String title, String author) {
+        this.postId = postId;
+        this.title = title;
+        this.author = author;
+    }
+
     public String getPostId() {
         return postId;
     }
