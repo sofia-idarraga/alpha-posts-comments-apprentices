@@ -48,6 +48,7 @@ class EditCommentContentUseCaseTest {
         commentAdded.setAggregateRootId("1");
 
         var commentEdited = new CommentContentEdited("1", "ContentTest");
+        commentEdited.setAggregateRootId("1");
 
         var command = new EditCommentContent("1","1","newContentTest");
 
@@ -57,10 +58,13 @@ class EditCommentContentUseCaseTest {
         Mockito.when(repository.saveEvent(Mockito.any(DomainEvent.class))).thenReturn(responseExpected);
 
         var useCaseExecute = useCase.apply(Mono.just(command)).collectList();
+
         StepVerifier.create(useCaseExecute)
-                .expectNextMatches(events -> events.get(0) instanceof CommentContentEdited)
+                .expectNextMatches(events ->
+                        events.get(0).aggregateRootId().equals("1") &&
+                        events.get(0) instanceof CommentContentEdited)
                 .expectComplete().verify();
-
+        Mockito.verify(repository).findById(Mockito.any(String.class));
+        Mockito.verify(repository).saveEvent(Mockito.any(DomainEvent.class));
     }
-
 }

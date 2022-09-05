@@ -48,7 +48,9 @@ class CreatePostUseCaseTest {
         var useCaseExecute = useCase.apply(Mono.just(command)).collectList();
 
         StepVerifier.create(useCaseExecute)
-                .expectNextMatches(events -> events.get(0) instanceof PostCreated)
+                .expectNextMatches(events ->
+                        events.get(0).aggregateRootId().equals("1") &&
+                        events.get(0) instanceof PostCreated)
                 .expectComplete().verify();
 
         Mockito.verify(repository).saveEvent(Mockito.any(DomainEvent.class));
