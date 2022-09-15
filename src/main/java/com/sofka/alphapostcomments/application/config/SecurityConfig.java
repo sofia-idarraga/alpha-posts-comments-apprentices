@@ -15,6 +15,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
 
 @EnableWebFluxSecurity
 public class SecurityConfig {
@@ -22,13 +23,15 @@ public class SecurityConfig {
     @Bean
     SecurityWebFilterChain springSecurityAccess(ServerHttpSecurity httpSecurity,
                                                 JwtTokenProvider tokenProvider,
-                                                ReactiveAuthenticationManager reactiveAuthenticationManager) {
+                                                ReactiveAuthenticationManager reactiveAuthenticationManager,
+                                                CorsConfigurationSource corsConfigurationSource) {
 
         final String CREATE_POST = "/create/post";
         final String CREATE_USERS = "/auth/save/**";
 
         return httpSecurity.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .cors().configurationSource(corsConfigurationSource).and()
                 .authenticationManager(reactiveAuthenticationManager)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(access -> access
