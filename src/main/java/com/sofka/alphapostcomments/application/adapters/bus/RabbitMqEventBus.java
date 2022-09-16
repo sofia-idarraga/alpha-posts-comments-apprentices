@@ -4,9 +4,11 @@ import co.com.sofka.domain.generic.DomainEvent;
 import com.google.gson.Gson;
 import com.sofka.alphapostcomments.application.config.RabbitConfig;
 import com.sofka.alphapostcomments.business.gateways.EventBus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class RabbitMqEventBus implements EventBus {
     private final RabbitTemplate rabbitTemplate;
@@ -25,6 +27,7 @@ public class RabbitMqEventBus implements EventBus {
         rabbitTemplate.convertAndSend(
                 RabbitConfig.EXCHANGE, RabbitConfig.GENERAL_ROUTING_KEY, notification.serialize().getBytes()
         );
+        log.info("Event pushed to RabbitMq: "+ notification.getBody());
     }
 
     @Override
