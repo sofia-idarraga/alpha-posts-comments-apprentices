@@ -10,12 +10,13 @@ import com.sofka.alphapostcomments.domain.values.Author;
 import com.sofka.alphapostcomments.domain.values.CommentId;
 import com.sofka.alphapostcomments.domain.values.Content;
 import com.sofka.alphapostcomments.domain.values.PostId;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.stream.Collectors;
-
+@Slf4j
 @Component
 public class AddCommentUseCase extends UseCaseForCommand<AddComment> {
 
@@ -33,6 +34,7 @@ public class AddCommentUseCase extends UseCaseForCommand<AddComment> {
         // First, we need the list of events to construct the Post with the ID and the events
         //flatMapMany takes the Mono‘s List, flattens it, and creates a Flux of Events
         return addCommentMono.flatMapMany(command -> repository.findById(command.getPostId())
+                .switchIfEmpty(Mono.error(new Throwable("Post id doesn't exist or is null")))
                 //Collect this to obtain the List of events that we gonna use to construct the Post
                 .collectList()
                 // The flatMapIterable allow us to use the List of events and then return a Flux
@@ -44,7 +46,9 @@ public class AddCommentUseCase extends UseCaseForCommand<AddComment> {
                 }).map(event -> {
                     bus.publish(event);
                     return event;
-                }).flatMap(event -> repository.saveEvent(event))
+                }).flatMap(event -> {
+                    log.info("Comment added to post "+event.aggregateRootId() );
+                  return   repository.saveEvent(event);})
         );
     }
     /*

@@ -28,6 +28,7 @@ public class SecurityConfig {
 
         final String CREATE_POST = "/create/post";
         final String CREATE_USERS = "/auth/save/**";
+        final String ADD_COMMET = "/add/comment";
 
         return httpSecurity.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
@@ -36,6 +37,7 @@ public class SecurityConfig {
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(access -> access
                         .pathMatchers(CREATE_POST).hasAuthority("ROLE_USER")
+                        .pathMatchers(ADD_COMMET).hasAuthority("ROLE_USER")
                         .pathMatchers(CREATE_USERS).hasAuthority("ROLE_ADMIN")
                         .anyExchange().permitAll()
                 ).addFilterAt(new JwtTokenAuthenticationFilter(tokenProvider), SecurityWebFiltersOrder.HTTP_BASIC)

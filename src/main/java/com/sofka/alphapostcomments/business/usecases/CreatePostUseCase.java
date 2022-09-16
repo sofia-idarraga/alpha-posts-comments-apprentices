@@ -9,10 +9,12 @@ import com.sofka.alphapostcomments.domain.commands.CreatePost;
 import com.sofka.alphapostcomments.domain.values.Author;
 import com.sofka.alphapostcomments.domain.values.PostId;
 import com.sofka.alphapostcomments.domain.values.Title;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 public class CreatePostUseCase extends UseCaseForCommand<CreatePost> {
 
@@ -44,8 +46,11 @@ public class CreatePostUseCase extends UseCaseForCommand<CreatePost> {
                     // In this case the event is PostCreated
                     return post.getUncommittedChanges();
                 })
-                .flatMap(domainEvent -> repository.saveEvent(domainEvent).thenReturn(domainEvent))
-                .doOnNext(bus::publish);
+                .flatMap(domainEvent ->{
+                    log.info("Post created with Id "+domainEvent.aggregateRootId() );
+                   return repository.saveEvent(domainEvent).thenReturn(domainEvent);})
+                .doOnNext(bus::publish)
+                .onErrorResume(e ->{return Mono.error(new Throwable("Something went wrong creating post"));} );
         //Finally we save the event in the repository and return it
     }
 }

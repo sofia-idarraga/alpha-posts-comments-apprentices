@@ -10,6 +10,7 @@ import com.sofka.alphapostcomments.domain.commands.AddComment;
 import com.sofka.alphapostcomments.domain.commands.AddTag;
 import com.sofka.alphapostcomments.domain.commands.CreatePost;
 import com.sofka.alphapostcomments.domain.commands.EditCommentContent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
+@Slf4j
 @Configuration
 public class CommandHandle {
 
@@ -31,8 +33,18 @@ public class CommandHandle {
 
         return route(
                 POST("/create/post").and(accept(MediaType.APPLICATION_JSON)),
-                request -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromPublisher(useCase.apply(request.bodyToMono(CreatePost.class)), DomainEvent.class))
+                request -> useCase.apply(request.bodyToMono(CreatePost.class))
+                        .collectList()
+                        .flatMap(events -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(events))
+                        .onErrorResume(error -> {
+                            log.error(error.getLocalizedMessage());
+                            return ServerResponse.badRequest().build();
+                        })
+
+
+                // ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                // .body(BodyInserters.fromPublisher(useCase.apply(request.bodyToMono(CreatePost.class)), DomainEvent.class))
         );
     }
 
@@ -41,8 +53,17 @@ public class CommandHandle {
 
         return route(
                 POST("/add/comment").and(accept(MediaType.APPLICATION_JSON)),
-                request -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromPublisher(useCase.apply(request.bodyToMono(AddComment.class)), DomainEvent.class))
+                request -> useCase.apply(request.bodyToMono(AddComment.class))
+                        .collectList()
+                        .flatMap(domainEvens -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(domainEvens))
+                        .onErrorResume(error -> {
+                            log.error(error.getLocalizedMessage());
+                            return ServerResponse.badRequest().build();
+                        })
+
+                // ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                // .body(BodyInserters.fromPublisher(useCase.apply(request.bodyToMono(AddComment.class)), DomainEvent.class))
         );
     }
 
@@ -62,7 +83,7 @@ public class CommandHandle {
         return route(
                 PUT("/edit/comment").and(accept(MediaType.APPLICATION_JSON)),
                 request -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromPublisher(useCase.apply(request.bodyToMono(EditCommentContent.class)),  DomainEvent.class))
+                        .body(BodyInserters.fromPublisher(useCase.apply(request.bodyToMono(EditCommentContent.class)), DomainEvent.class))
         );
     }
 }
